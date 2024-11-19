@@ -118,7 +118,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 }),
                 Text(
                   '*Classification is on development*',
-                  style: TextStyle(color: Colors.white),
+                  style: TextStyle(color: Colors.red),
                 ),
                 const SizedBox(height: 10),
                 _buildButton("Clustering Model", () {
@@ -126,7 +126,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 }),
                 Text(
                   '*Clusteringr is on development*',
-                  style: TextStyle(color: Colors.white),
+                  style: TextStyle(color: Colors.red),
                 ),
               ],
             ),

@@ -12,7 +12,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      title: 'Firestore Demo',
+      debugShowCheckedModeBanner: false,
+      title: 'Modelix',
       home: HomeScreen(),
     );
   }
