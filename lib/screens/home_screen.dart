@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:modelix/widgets/shining_text.dart';
 import 'package:video_player/video_player.dart';
 import 'MLModelScreen.dart';
 
@@ -13,6 +14,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   late VideoPlayerController _controller;
   bool _isInitialized = false;
 
+  static final GlobalKey<_HomeScreenState> _globalKey = GlobalKey();
+
   @override
   void initState() {
     super.initState();
@@ -21,16 +24,20 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   void _initializeVideo() {
-    _controller = VideoPlayerController.asset('assets/images/page_1.mp4')
-      ..initialize().then((_) {
-        setState(() {
-          _isInitialized = true;
-          _controller.setLooping(true);
-          _controller.play();
+    if (!_isInitialized) {
+      _controller = VideoPlayerController.asset('assets/images/page_1.mp4')
+        ..initialize().then((_) {
+          setState(() {
+            _isInitialized = true;
+            _controller.setLooping(true);
+            _controller.play();
+          });
+        }).catchError((error) {
+          debugPrint("Error initializing video: $error");
         });
-      }).catchError((error) {
-        debugPrint("Error initializing video: $error");
-      });
+    } else {
+      _controller.play();
+    }
   }
 
   @override
@@ -44,9 +51,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   @override
   void dispose() {
-    if (_isInitialized) {
-      _controller.dispose();
-    }
+    _controller.dispose();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -71,8 +76,28 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     ),
                   ),
                 )
-              : const Center(
-                  child: CircularProgressIndicator(),
+              : Center(
+                  child: Image.asset(
+                    'assets/images/loader.jpg',
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: double.infinity,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        color: Colors.black, // Fallback background color
+                        child: const Center(
+                          child: Text(
+                            'Loading...',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                 ),
 
           // Foreground Content
@@ -80,6 +105,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                ShiningText(),
+                const SizedBox(
+                  height: 20,
+                ),
                 _buildButton("Regression Model", () {
                   _navigateToModelScreen(context, "Regression Model");
                 }),
@@ -87,10 +116,18 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 _buildButton("Classification Model", () {
                   _navigateToModelScreen(context, "Classification Model");
                 }),
-                const SizedBox(height: 20),
+                Text(
+                  '*Classification is on development*',
+                  style: TextStyle(color: Colors.white),
+                ),
+                const SizedBox(height: 10),
                 _buildButton("Clustering Model", () {
                   _navigateToModelScreen(context, "Clustering Model");
                 }),
+                Text(
+                  '*Clusteringr is on development*',
+                  style: TextStyle(color: Colors.white),
+                ),
               ],
             ),
           ),
@@ -131,11 +168,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         builder: (context) => MLModelScreen(modelType: modelType),
       ),
     ).then((_) {
-      // Reinitialize video after returning to HomeScreen
+      // Ensure video is playing when coming back
       if (_controller.value.isInitialized) {
         _controller.play();
-      } else {
-        _initializeVideo();
       }
     });
   }
