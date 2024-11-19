@@ -77,27 +77,29 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   ),
                 )
               : Center(
-                  child: Image.asset(
-                    'assets/images/loader.jpg',
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    height: double.infinity,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: Colors.black, // Fallback background color
-                        child: const Center(
-                          child: Text(
-                            'Loading...',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+                  // child: Image.asset(
+                  //   'assets/images/loader.jpg',
+                  //   fit: BoxFit.cover,
+                  //   width: double.infinity,
+                  //   height: double.infinity,
+                  //   errorBuilder: (context, error, stackTrace) {
+                  //     return Container(
+                  //       color: Colors.black, // Fallback background color
+                  //       child: const Center(
+                  //         child: Text(
+                  //           'Loading...',
+                  //           style: TextStyle(
+                  //             color: Colors.white,
+                  //             fontSize: 20,
+                  //             fontWeight: FontWeight.bold,
+                  //           ),
+                  //         ),
+                  //       ),
+                  //     );
+                  //   },
+                  // ),
+
+                  child: CircularProgressIndicator(),
                 ),
 
           // Foreground Content
