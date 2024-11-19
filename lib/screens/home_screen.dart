@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:modelix/widgets/shining_text.dart';
 import 'package:video_player/video_player.dart';
-import 'MLModelScreen.dart';
+import 'MLModelScreen.dart'; // Import the MLModelScreen
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -11,7 +12,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   late VideoPlayerController _controller;
-  bool _isVideoReady = false;
+  bool _isInitialized = false;
 
   @override
   void initState() {
@@ -21,23 +22,27 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   void _initializeVideo() {
-    _controller = VideoPlayerController.asset('assets/images/page_1.mp4')
-      ..initialize().then((_) {
-        setState(() {
-          _isVideoReady = true;
-          _controller.setLooping(true);
-          _controller.play();
+    if (!_isInitialized) {
+      _controller = VideoPlayerController.asset('assets/images/page_1.mp4')
+        ..initialize().then((_) {
+          setState(() {
+            _isInitialized = true;
+            _controller.setLooping(true);
+            _controller.play();
+          });
+        }).catchError((error) {
+          debugPrint("Error initializing video: $error");
         });
-      }).catchError((error) {
-        debugPrint("Error initializing video: $error");
-      });
+    } else {
+      _controller.play();
+    }
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed && _isVideoReady) {
+    if (state == AppLifecycleState.resumed && _isInitialized) {
       _controller.play();
-    } else if (state == AppLifecycleState.paused && _isVideoReady) {
+    } else if (state == AppLifecycleState.paused && _isInitialized) {
       _controller.pause();
     }
   }
@@ -55,14 +60,17 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       body: Stack(
         children: [
           // Background Video
-          _isVideoReady
+          _isInitialized
               ? SizedBox.expand(
-                  child: FittedBox(
-                    fit: BoxFit.cover,
-                    child: SizedBox(
-                      width: _controller.value.size.width,
-                      height: _controller.value.size.height,
-                      child: VideoPlayer(_controller),
+                  child: Opacity(
+                    opacity: 0.8,
+                    child: FittedBox(
+                      fit: BoxFit.cover,
+                      child: SizedBox(
+                        width: _controller.value.size.width,
+                        height: _controller.value.size.height,
+                        child: VideoPlayer(_controller),
+                      ),
                     ),
                   ),
                 )
@@ -70,8 +78,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   child: Image.asset(
                     'assets/images/loader.jpg',
                     fit: BoxFit.cover,
-                    width: double.infinity,
-                    height: double.infinity,
                     errorBuilder: (context, error, stackTrace) {
                       return Container(
                         color: Colors.black, // Fallback color
@@ -91,24 +97,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  'Modelix',
-                  style: TextStyle(
-                    fontSize: 50,
-                    fontWeight: FontWeight.bold,
-                    foreground: Paint()
-                      ..shader = LinearGradient(
-                        colors: [
-                          Colors.red.shade900,
-                          Colors.purple.shade900,
-                          Colors.blue.shade900,
-                          Colors.teal.shade900,
-                          Colors.green.shade900,
-                        ],
-                      ).createShader(
-                          const Rect.fromLTWH(0.0, 0.0, 200.0, 70.0)),
-                  ),
-                ),
+                ShiningText(),
                 const SizedBox(height: 20),
                 _buildButton("Regression Model", () {
                   _navigateToModelScreen(context, "Regression Model");
@@ -117,7 +106,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 _buildButton("Classification Model", () {
                   _navigateToModelScreen(context, "Classification Model");
                 }),
-                const Text(
+                Text(
                   '*Classification is under development*',
                   style: TextStyle(color: Colors.red),
                 ),
@@ -125,7 +114,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 _buildButton("Clustering Model", () {
                   _navigateToModelScreen(context, "Clustering Model");
                 }),
-                const Text(
+                Text(
                   '*Clustering is under development*',
                   style: TextStyle(color: Colors.red),
                 ),
@@ -169,8 +158,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         builder: (context) => MLModelScreen(modelType: modelType),
       ),
     ).then((_) {
-      // Ensure video resumes playing when coming back
-      if (_isVideoReady) {
+      // Ensure video is playing when coming back
+      if (_controller.value.isInitialized) {
         _controller.play();
       }
     });

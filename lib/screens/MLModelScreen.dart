@@ -102,8 +102,9 @@ class _MLModelScreenState extends State<MLModelScreen> {
     if (xColumns.isEmpty || yColumn.isEmpty || fileName == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content:
-                Text('Please upload a CSV file and specify X and Y columns.')),
+          content:
+              Text('Please upload a CSV file and specify X and Y columns.'),
+        ),
       );
       return;
     }
@@ -121,7 +122,7 @@ class _MLModelScreenState extends State<MLModelScreen> {
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'file_name': fileName,
-          'x_columns': xColumns,
+          'x_columns': xColumns.split(','), // Split string into list
           'y_column': yColumn,
         }),
       );
@@ -129,7 +130,8 @@ class _MLModelScreenState extends State<MLModelScreen> {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
-          result = "Best Model: ${data['best_model']}\nR2 Score: ${data['r2']}";
+          result =
+              "Best Model: ${data['best_model']}\nAccuracy: ${data['accuracy']}";
           codeTemplate = data['code_template'];
           isLoading = false;
         });
