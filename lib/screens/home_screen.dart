@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
-import 'MLModelScreen.dart'; // Import the MLModelScreen
+import 'MLModelScreen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -9,21 +9,24 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   late VideoPlayerController _controller;
-  bool _isVideoInitialized = false; // Track video initialization status
+  bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _initializeVideo();
+  }
 
-    // Initialize video controller
+  void _initializeVideo() {
     _controller = VideoPlayerController.asset('assets/images/page_1.mp4')
       ..initialize().then((_) {
         setState(() {
+          _isInitialized = true;
           _controller.setLooping(true);
           _controller.play();
-          _isVideoInitialized = true; // Mark video as initialized
         });
       }).catchError((error) {
         debugPrint("Error initializing video: $error");
@@ -31,8 +34,20 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && _isInitialized) {
+      _controller.play();
+    } else if (state == AppLifecycleState.paused && _isInitialized) {
+      _controller.pause();
+    }
+  }
+
+  @override
   void dispose() {
-    _controller.dispose();
+    if (_isInitialized) {
+      _controller.dispose();
+    }
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
@@ -41,11 +56,11 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // Background video with opacity
-          _isVideoInitialized
+          // Background Video
+          _isInitialized
               ? SizedBox.expand(
                   child: Opacity(
-                    opacity: 0.7, // Adjust opacity
+                    opacity: 0.8,
                     child: FittedBox(
                       fit: BoxFit.cover,
                       child: SizedBox(
@@ -57,10 +72,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 )
               : const Center(
-                  child: CircularProgressIndicator(), // Show loading indicator
+                  child: CircularProgressIndicator(),
                 ),
 
-          // Buttons Overlay
+          // Foreground Content
           Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -86,14 +101,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildButton(String label, VoidCallback onPressed) {
     return SizedBox(
-      width: 250, // Fixed width for all buttons
+      width: 250,
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 15),
-          backgroundColor: Colors.black87, // Dark background color
+          backgroundColor: Colors.black87,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20), // Rounded corners
+            borderRadius: BorderRadius.circular(20),
           ),
           elevation: 8,
         ),
@@ -102,7 +117,7 @@ class _HomeScreenState extends State<HomeScreen> {
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: Colors.white, // White text
+            color: Colors.white,
           ),
         ),
       ),
@@ -115,6 +130,13 @@ class _HomeScreenState extends State<HomeScreen> {
       MaterialPageRoute(
         builder: (context) => MLModelScreen(modelType: modelType),
       ),
-    );
+    ).then((_) {
+      // Reinitialize video after returning to HomeScreen
+      if (_controller.value.isInitialized) {
+        _controller.play();
+      } else {
+        _initializeVideo();
+      }
+    });
   }
 }
