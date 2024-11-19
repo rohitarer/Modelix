@@ -11,6 +11,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late VideoPlayerController _controller;
+  bool _isVideoInitialized = false; // Track video initialization status
 
   @override
   void initState() {
@@ -20,8 +21,9 @@ class _HomeScreenState extends State<HomeScreen> {
     _controller = VideoPlayerController.asset('assets/images/page_1.mp4')
       ..initialize().then((_) {
         setState(() {
-          _controller.setLooping(true); // Set video to loop
-          _controller.play(); // Start playing video
+          _controller.setLooping(true);
+          _controller.play();
+          _isVideoInitialized = true; // Mark video as initialized
         });
       }).catchError((error) {
         debugPrint("Error initializing video: $error");
@@ -30,7 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
-    _controller.dispose(); // Dispose of the video controller
+    _controller.dispose();
     super.dispose();
   }
 
@@ -40,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Stack(
         children: [
           // Background video with opacity
-          _controller.value.isInitialized
+          _isVideoInitialized
               ? SizedBox.expand(
                   child: Opacity(
                     opacity: 0.7, // Adjust opacity
@@ -55,7 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 )
               : const Center(
-                  child: CircularProgressIndicator(),
+                  child: CircularProgressIndicator(), // Show loading indicator
                 ),
 
           // Buttons Overlay
