@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "986202302438",
+    "project_id": "modelix-16f50",
+    "storage_bucket": "modelix-16f50.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:986202302438:android:16b9217dc8ca6c21fed827",
+        "android_client_info": {
+          "package_name": "com.example.modelix"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC_BTqQklLw-zWLBnW7ewZkefU957JH6X4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
