@@ -36,6 +36,8 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   http: ^1.2.2
+  path_provider: ^2.1.5
+  pdf: ^3.10.0
   
   # File picker package for selecting CSV files
   file_picker: ^8.1.4
@@ -72,6 +74,8 @@ flutter:
   assets:
     - assets/images/page_1.mp4
     - assets/images/loader.jpg
+    - assets/images/pdf.png
+    - assets/images/
     # - assets/images/page_2.mp4
   #   - images/a_dot_ham.jpeg
 
